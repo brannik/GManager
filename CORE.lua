@@ -77,6 +77,10 @@ local function GetPlayerGuildRank(playerName)
             playerInfo[1] = classDisplayName
             playerInfo[2] = class
             playerInfo[3] = rankName
+            playerInfo[4] = publicNote
+            playerInfo[5] = officerNote
+            playerInfo[6] = zone
+            playerInfo[7] = level
             break
         end
     end
@@ -470,27 +474,37 @@ local function Rooster(container)
     simpleGroup:SetLayout("Fill")
     simpleGroup:SetFullWidth(true)
     simpleGroup:SetFullHeight(true)
+    simpleGroup:SetHeight(300)
     
     local scroll = AceGUI:Create("ScrollFrame")
     scroll:SetLayout("Flow") -- probably?
     scroll:SetFullWidth(true)
     --scroll:SetFullHeight(true)
-    scroll:SetHeight(400)
+    scroll:SetHeight(300)
     simpleGroup:AddChild(scroll)
 
     local numTotalMembers = GetNumGuildMembers()
+
+
+    --playerInfo[1] = classDisplayName
+    --playerInfo[2] = class
+    --playerInfo[3] = rankName
+    --playerInfo[4] = publicNote
+    --playerInfo[5] = officerNote
+    --playerInfo[6] = zone
+    --playerInfo[7] = level
 
     for i = 1, numTotalMembers do
         local name, rank, _, _, class, _, _, _, online = GetGuildRosterInfo(i)
         if online then
             local simpleInnerGroup = AceGUI:Create("SimpleGroup")
-            simpleInnerGroup:SetLayout("Fill")
+            simpleInnerGroup:SetLayout("Flow")
             simpleInnerGroup:SetFullWidth(true)
             simpleInnerGroup:SetHeight(50)
             -- create inner grp
             local charName = AceGUI:Create("Label")
             local plrInfo = GetPlayerGuildRank(name)
-            charName:SetText(" |c" .. GetClassColor(plrInfo[2]).. name .. "|r")
+            charName:SetText("[".. plrInfo[7] .. "] |c" .. GetClassColor(plrInfo[2]).. name .. "|r Note: " .. plrInfo[4] .. " ONote: " .. plrInfo[5] .. " Zone: " .. plrInfo[6])
             charName:SetColor(1, 1, 0)
             charName:SetFont("Fonts\\FRIZQT__.TTF", 12)
             charName:SetJustifyH("LEFT")
