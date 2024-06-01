@@ -11,6 +11,11 @@ local gmessage
 local keywords
 local timerId
 local spamTimerId
+local playerToInv
+local rankToPromote
+local publicNoteToAdd
+local officerNoteToAdd
+local ranks = {"asd","dfg"}
 local guildName, guildRankName, guildRankIndex, realm = GetGuildInfo("player")
 GManager.db = {
     channelForSpam = 1,
@@ -146,6 +151,42 @@ end
 function PMToPlayer(plrName)
     SendChatMessage(" ","WHISPER",nil,plrName);
 end
+local function GetGuildRanks()
+    local numRanks = GuildControlGetNumRanks()
+    local ranks = {}
+
+    for i = 1, numRanks do
+        local rankName, _, _ = GuildControlGetRankName(i)
+        table.insert(ranks, rankName)
+    end
+
+    return ranks
+end
+local function SetGuildRank(playerName, newRankIndex)
+    GuildControlSetRank(newRankIndex)
+end
+local function SetPublicNote(playerName, newNote)
+    local numGuildMembers = GetNumGuildMembers()
+    for i = 1, numGuildMembers do
+        local name, _, _, _, _, _, _, _, _, _, _, _, _, publicNote = GetGuildRosterInfo(i)
+        if name == playerToInv then
+            GuildRosterSetPublicNote(i, publicNote)
+            return
+        end
+    end
+    print(playerName.." is not in your guild.")
+end
+-- Function to set a player's officer note
+local function SetOfficerNote(playerName, newNote)
+    local numGuildMembers = GetNumGuildMembers()
+    for i = 1, numGuildMembers do
+        local name, _, _, _, _, _, _, officerNote = GetGuildRosterInfo(i)
+        if name == playerToInv then
+            GuildRosterSetOfficerNote(i, officerNote)
+            return
+        end
+    end
+end
 -- invite player tab 
 local function GInvitePlayer(container)
     local desc = AceGUI:Create("Label")
@@ -155,6 +196,58 @@ local function GInvitePlayer(container)
     desc:SetJustifyH("CENTER")
     desc:SetFullWidth(true)
     container:AddChild(desc)
+
+    local editbox = AceGUI:Create("EditBox")
+    editbox:SetLabel("Player name:")
+    editbox:SetWidth(330)
+    editbox:SetFullWidth(true)
+    editbox:SetCallback("OnEnterPressed", function(widget, event, text) playerToInv = text end)
+    container:AddChild(editbox)
+
+    local grank = AceGUI:Create("Dropdown")
+    grank:SetLabel("Rank")
+    grank:SetMultiselect(false)
+    grank:SetCallback("OnValueChanged",function(widget,event,value) rankToPromote = value end)
+    ranks = GetGuildRanks()
+    grank:SetList(ranks)
+    grank:SetWidth(330)
+    grank:SetFullWidth(true)
+    container:AddChild(grank)
+
+    local editbox = AceGUI:Create("EditBox")
+    editbox:SetLabel("Public note:")
+    editbox:SetWidth(330)
+    editbox:SetFullWidth(true)
+    editbox:SetCallback("OnEnterPressed", function(widget, event, text) publicNoteToAdd = text end)
+    container:AddChild(editbox)
+
+    local editbox = AceGUI:Create("EditBox")
+    editbox:SetLabel("Officer note:")
+    editbox:SetWidth(330)
+    editbox:SetFullWidth(true)
+    editbox:SetCallback("OnEnterPressed", function(widget, event, text) officerNoteToAdd = text end)
+    container:AddChild(editbox)
+
+    local button = AceGUI:Create("Button")
+    button:SetText("Invite player")
+    button:SetWidth(330)
+    button:SetFullWidth(true)
+    button:SetCallback("OnClick", function()
+        GuildInvite(playerToInv)
+        print("Invite plyer: " .. playerToInv .. " with rank: " .. rankToPromote .. " Public Note: " .. publicNoteToAdd .. " Officer Note: " .. officerNoteToAdd)
+        end)
+    container:AddChild(button)
+
+    local button2 = AceGUI:Create("Button")
+    button2:SetText("Promote")
+    button2:SetWidth(330)
+    button2:SetFullWidth(true)
+    button2:SetCallback("OnClick", function()
+        SetGuildRank(playerToInv,rankToPromote)
+        SetPublicNote(playerToInv,publicNoteToAdd)
+        SetOfficerNote(playerToInv,officerNoteToAdd)
+        end)
+    container:AddChild(button2)
 end
 -- kick player tab
 local function KickPlayers(container)
@@ -198,6 +291,7 @@ local function KickPlayers(container)
     editbox:SetFullWidth(true)
     editbox:SetCallback("OnEnterPressed", function(widget, event, text) textStore = firstToUpper(text) end)
     container:AddChild(editbox)
+
     local button = AceGUI:Create("Button")
     button:SetText("Find Player")
     button:SetWidth(330)
