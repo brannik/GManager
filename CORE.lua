@@ -396,13 +396,29 @@ local function MassInviteToGroup(container)
         if keywords ~= nil then
             EVENTS:RegisterEvent("CHAT_MSG_GUILD", "OnGuildChat")
             EVENTS:RegisterEvent("CHAT_MSG_WHISPER", "OnWhisperReceived")
-            SendChatMessage("Type " .. keywords .. " in guild chat or PM to get invited. Autoinvite will be send after " .. textStore .. " seconds. Leave your groups now!", "GUILD")
+            SendChatMessage("Type >> " .. keywords .. " << in guild chat or PM to get invited. Autoinvite will be send after " .. textStore .. " seconds. Leave your groups now!", "GUILD")
         end
         timerId = TIMER:ScheduleTimer(function()
             TimerDone()
         end, textStore)
         end)
     container:AddChild(btnBeginTimer)
+
+    local btnBeginTimer2 = AceGUI:Create("Button")
+    btnBeginTimer2:SetText("Reannounce")
+    btnBeginTimer2:SetWidth(330)
+    btnBeginTimer2:SetFullWidth(true)
+    btnBeginTimer2:SetCallback("OnClick", function()
+        if gmessage ~= nil then
+            SendChatMessage(gmessage, "GUILD")
+        end
+        if keywords ~= nil then
+            EVENTS:RegisterEvent("CHAT_MSG_GUILD", "OnGuildChat")
+            EVENTS:RegisterEvent("CHAT_MSG_WHISPER", "OnWhisperReceived")
+            SendChatMessage("Type >> " .. keywords .. " << in guild chat or PM to get invited.", "GUILD")
+        end
+        end)
+    container:AddChild(btnBeginTimer2)
 
     local btnStopTimer = AceGUI:Create("Button")
     btnStopTimer:SetText("Stop")
