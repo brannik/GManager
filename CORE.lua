@@ -17,7 +17,6 @@ GManager.db = {
     messageToSpam = "none",
     timerToSpam = 60
 }
-
 local PlayerCharacters = {}
 local classCounts = {
     ["WARRIOR"] = 0,
@@ -123,7 +122,6 @@ function SendRecruitementMessage()
         SendRecruitementMessage()
     end, GManager.db.timerToSpam)
 end
-
 function EVENTS:OnGuildChat(event, message, sender, _, _, _, _, _, _, _, _, _, guid)
     -- Your code to handle guild chat messages goes here
     if message == keywords then
@@ -138,9 +136,14 @@ function EVENTS:OnWhisperReceived(event, message, sender, _, _, _, _, _, _, _, _
         --print("Invite " .. sender)
     end
 end
+function InvitePlayerToGroup(plrName)
 
+end
+function PMToPlayer(plrName)
+
+end
 -- invite player tab 
-local function DrawGroup1(container)
+local function GInvitePlayer(container)
     local desc = AceGUI:Create("Label")
     desc:SetText("Invite player to guild")
     desc:SetColor(1, 1, 0)
@@ -150,7 +153,7 @@ local function DrawGroup1(container)
     container:AddChild(desc)
 end
 -- kick player tab
-local function DrawGroup2(container)
+local function KickPlayers(container)
     
     local list = AceGUI:Create("MultiLineEditBox")
     list:SetLabel("List of all characters")
@@ -254,7 +257,7 @@ local function DrawGroup2(container)
     container:AddChild(buttonKick)
 end
 -- mass invite to raid tab
-local function DrawGroup3(container)
+local function MassInviteToGroup(container)
     local desc = AceGUI:Create("Label")
     desc:SetText("Mass invite guild members to raid")
     desc:SetColor(1, 1, 0)
@@ -315,7 +318,7 @@ local function DrawGroup3(container)
     container:AddChild(btnStopTimer)
 end
 -- guild info tab
-local function DrawGroup4(container)
+local function GuildInfo(container)
     local desc = AceGUI:Create("Label")
     desc:SetText("Guild Info")
     desc:SetColor(1, 1, 0)
@@ -384,7 +387,7 @@ local function DrawGroup4(container)
     container:AddChild(simpleGroup)
 end
 -- guild recruit tab
-local function DrawGroup5(container)
+local function ReqruitMembers(container)
     local desc = AceGUI:Create("Label")
     desc:SetText("Guild recruit")
     desc:SetColor(1, 1, 0)
@@ -439,7 +442,7 @@ local function DrawGroup5(container)
 
 end
 -- settings tab
-local function DrawGroup6(container)
+local function Settings(container)
     local desc = AceGUI:Create("Label")
     desc:SetText("Settings")
     desc:SetColor(1, 1, 0)
@@ -448,21 +451,82 @@ local function DrawGroup6(container)
     desc:SetFullWidth(true)
     container:AddChild(desc)
 end
+local function Rooster(container)
+    local desc = AceGUI:Create("Label")
+    desc:SetText("Rooster")
+    desc:SetColor(1, 1, 0)
+    desc:SetFont("Fonts\\FRIZQT__.TTF", 18)
+    desc:SetJustifyH("CENTER")
+    desc:SetFullWidth(true)
+    container:AddChild(desc)
+
+    local head2 = AceGUI:Create("Heading")
+    head2:SetText("Rooster")
+    head2:SetFullWidth(true)
+    head2:SetHeight(30)
+    container:AddChild(head2)
+
+    local simpleGroup = AceGUI:Create("SimpleGroup")
+    simpleGroup:SetLayout("Flow")
+    simpleGroup:SetFullWidth(true)
+    
+    local numTotalMembers = GetNumGuildMembers()
+
+    for i = 1, numTotalMembers do
+        local name, rank, _, _, class, _, _, _, online = GetGuildRosterInfo(i)
+        if online then
+            local simpleInnerGroup = AceGUI:Create("SimpleGroup")
+            --simpleInnerGroup:SetLayout("Fill")
+            simpleInnerGroup:SetFullWidth(true)
+            -- create inner grp
+            local charName = AceGUI:Create("Label")
+            local plrInfo = GetPlayerGuildRank(name)
+            charName:SetText(" |c" .. GetClassColor(plrInfo[2]).. name .. "|r")
+            charName:SetColor(1, 1, 0)
+            charName:SetFont("Fonts\\FRIZQT__.TTF", 12)
+            charName:SetJustifyH("LEFT")
+            simpleInnerGroup:AddChild(charName)
+
+            local buttonKick = AceGUI:Create("Button")
+            buttonKick:SetText("Invite")
+            buttonKick:SetWidth(120)
+            buttonKick:SetCallback("OnClick", function()
+                print("Button INV is working")
+            end)
+            simpleInnerGroup:AddChild(buttonKick)
+
+            local buttonPM = AceGUI:Create("Button")
+            buttonPM:SetText("PM")
+            buttonPM:SetWidth(120)
+            buttonPM:SetCallback("OnClick", function()
+                print("Button INV is working")
+            end)
+            simpleInnerGroup:AddChild(buttonPM)
+
+            simpleGroup:AddChild(simpleInnerGroup)
+        end
+    end
+
+    container:AddChild(simpleGroup)
+
+end
 -- Callback function for OnGroupSelected
 local function SelectGroup(container, event, group)
     container:ReleaseChildren()
     if group == "tab1" then
-        DrawGroup1(container)
+        GInvitePlayer(container)
     elseif group == "tab2" then
-        DrawGroup2(container)
+        KickPlayers(container)
     elseif group == "tab3" then
-        DrawGroup3(container)
+        MassInviteToGroup(container)
     elseif group == "tab4" then
-        DrawGroup4(container)
+        GuildInfo(container)
     elseif group == "tab5" then
-        DrawGroup5(container)
+        ReqruitMembers(container)
     elseif group == "tab6" then
-        DrawGroup6(container)
+        Settings(container)
+    elseif group == "tab7" then
+        Rooster(container)
     end
 end
 -- Create the frame container
@@ -480,7 +544,7 @@ local function showFrame()
     local tab =  AceGUI:Create("TabGroup")
     tab:SetLayout("List")
     -- Setup which tabs to show
-    tab:SetTabs({{text="Invite", value="tab1"}, {text="Kick", value="tab2"},{text="Mass Invite",value="tab3"},{text="Guild Info",value="tab4"},{text="Recruit",value="tab5"},{text="Settings",value="tab6"}})
+    tab:SetTabs({{text="Invite", value="tab1"}, {text="Kick", value="tab2"},{text="Mass Invite",value="tab3"},{text="Guild Info",value="tab4"},{text="Rooster",value="tab7"},{text="Recruit",value="tab5"},{text="Settings",value="tab6"}})
     -- Register callback
     tab:SetCallback("OnGroupSelected", SelectGroup)
     -- Set initial Tab (this will fire the OnGroupSelected callback)
