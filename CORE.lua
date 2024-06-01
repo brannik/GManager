@@ -467,17 +467,26 @@ local function Rooster(container)
     container:AddChild(head2)
 
     local simpleGroup = AceGUI:Create("SimpleGroup")
-    simpleGroup:SetLayout("Flow")
+    simpleGroup:SetLayout("Fill")
     simpleGroup:SetFullWidth(true)
+    simpleGroup:SetFullHeight(true)
     
+    local scroll = AceGUI:Create("ScrollFrame")
+    scroll:SetLayout("Flow") -- probably?
+    scroll:SetFullWidth(true)
+    --scroll:SetFullHeight(true)
+    scroll:SetHeight(400)
+    simpleGroup:AddChild(scroll)
+
     local numTotalMembers = GetNumGuildMembers()
 
     for i = 1, numTotalMembers do
         local name, rank, _, _, class, _, _, _, online = GetGuildRosterInfo(i)
         if online then
             local simpleInnerGroup = AceGUI:Create("SimpleGroup")
-            --simpleInnerGroup:SetLayout("Fill")
+            simpleInnerGroup:SetLayout("Fill")
             simpleInnerGroup:SetFullWidth(true)
+            simpleInnerGroup:SetHeight(50)
             -- create inner grp
             local charName = AceGUI:Create("Label")
             local plrInfo = GetPlayerGuildRank(name)
@@ -491,7 +500,7 @@ local function Rooster(container)
             buttonKick:SetText("Invite")
             buttonKick:SetWidth(120)
             buttonKick:SetCallback("OnClick", function()
-                print("Button INV is working")
+                print("INV " .. name)
             end)
             simpleInnerGroup:AddChild(buttonKick)
 
@@ -499,11 +508,11 @@ local function Rooster(container)
             buttonPM:SetText("PM")
             buttonPM:SetWidth(120)
             buttonPM:SetCallback("OnClick", function()
-                print("Button INV is working")
+                print("PM " .. name)
             end)
             simpleInnerGroup:AddChild(buttonPM)
 
-            simpleGroup:AddChild(simpleInnerGroup)
+            scroll:AddChild(simpleInnerGroup)
         end
     end
 
