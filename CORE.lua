@@ -267,7 +267,7 @@ local function KickPlayers(container)
         return true
     end)
     list:DisableButton(true)
-    list:SetNumLines(17)
+    list:SetNumLines(15)
 
     local desc = AceGUI:Create("Label")
     desc:SetText("Kick player and his alts")
