@@ -141,10 +141,10 @@ function EVENTS:OnWhisperReceived(event, message, sender, _, _, _, _, _, _, _, _
     end
 end
 function InvitePlayerToGroup(plrName)
-
+    InviteUnit(plrName) 
 end
 function PMToPlayer(plrName)
-
+    SendChatMessage(" ","WHISPER",nil,plrName);
 end
 -- invite player tab 
 local function GInvitePlayer(container)
@@ -514,7 +514,7 @@ local function Rooster(container)
             buttonKick:SetText("Invite")
             buttonKick:SetWidth(120)
             buttonKick:SetCallback("OnClick", function()
-                print("INV " .. name)
+                InvitePlayerToGroup(name)
             end)
             simpleInnerGroup:AddChild(buttonKick)
 
@@ -522,7 +522,7 @@ local function Rooster(container)
             buttonPM:SetText("PM")
             buttonPM:SetWidth(120)
             buttonPM:SetCallback("OnClick", function()
-                print("PM " .. name)
+                PMToPlayer(name)
             end)
             simpleInnerGroup:AddChild(buttonPM)
 
