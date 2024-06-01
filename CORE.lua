@@ -1,4 +1,4 @@
----@diagnostic disable: undefined-field, duplicate-set-field, undefined-global, redundant-parameter, deprecated
+---@diagnostic disable: undefined-field, duplicate-set-field, undefined-global, redundant-parameter, deprecated, inject-field
 GManager = LibStub("AceAddon-3.0"):NewAddon("GManager", "AceConsole-3.0")
 local TIMER = LibStub("AceTimer-3.0")
 local AceGUI = LibStub("AceGUI-3.0")
@@ -475,12 +475,14 @@ local function Rooster(container)
     simpleGroup:SetFullWidth(true)
     simpleGroup:SetFullHeight(true)
     simpleGroup:SetHeight(300)
+    simpleGroup:SetWidth(480)
     
     local scroll = AceGUI:Create("ScrollFrame")
     scroll:SetLayout("Flow") -- probably?
     scroll:SetFullWidth(true)
     --scroll:SetFullHeight(true)
     scroll:SetHeight(300)
+    scroll:SetWidth(480)
     simpleGroup:AddChild(scroll)
 
     local numTotalMembers = GetNumGuildMembers()
@@ -504,6 +506,7 @@ local function Rooster(container)
             -- create inner grp
             local charName = AceGUI:Create("Label")
             local plrInfo = GetPlayerGuildRank(name)
+            charName:SetWidth(300)
             charName:SetText("[".. plrInfo[7] .. "] |c" .. GetClassColor(plrInfo[2]).. name .. "|r Note: " .. plrInfo[4] .. " ONote: " .. plrInfo[5] .. " Zone: " .. plrInfo[6])
             charName:SetColor(1, 1, 0)
             charName:SetFont("Fonts\\FRIZQT__.TTF", 12)
@@ -512,7 +515,7 @@ local function Rooster(container)
 
             local buttonKick = AceGUI:Create("Button")
             buttonKick:SetText("Invite")
-            buttonKick:SetWidth(120)
+            buttonKick:SetWidth(80)
             buttonKick:SetCallback("OnClick", function()
                 InvitePlayerToGroup(name)
             end)
@@ -520,7 +523,7 @@ local function Rooster(container)
 
             local buttonPM = AceGUI:Create("Button")
             buttonPM:SetText("PM")
-            buttonPM:SetWidth(120)
+            buttonPM:SetWidth(80)
             buttonPM:SetCallback("OnClick", function()
                 PMToPlayer(name)
             end)
