@@ -606,3 +606,8 @@ function GManager:OnDisable()
 	-- Called when the addon is disabled
 end
 
+function GManager:HandleGMCommand(input)
+    showFrame()
+end
+
+GManager:RegisterChatCommand("gmgr", "HandleGMCommand")
