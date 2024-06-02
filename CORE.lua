@@ -15,6 +15,7 @@ local playerToInv
 local rankToPromote
 local publicNoteToAdd
 local officerNoteToAdd
+local diff_to_set
 local ranks = {"asd","dfg"}
 local guildName, guildRankName, guildRankIndex, realm = GetGuildInfo("player")
 GManager.db = {
@@ -189,14 +190,6 @@ local function SetOfficerNote(playerName, newNote)
 end
 -- invite player tab 
 local function GInvitePlayer(container)
-    local desc = AceGUI:Create("Label")
-    desc:SetText("Invite player to guild")
-    desc:SetColor(1, 1, 0)
-    desc:SetFont("Fonts\\FRIZQT__.TTF", 18)
-    --desc:SetJustifyH("CENTER")
-    desc:SetFullWidth(true)
-    container:AddChild(desc)
-
     local editbox = AceGUI:Create("EditBox")
     editbox:SetLabel("Player name:")
     editbox:SetWidth(330)
@@ -268,14 +261,6 @@ local function KickPlayers(container)
     end)
     list:DisableButton(true)
     list:SetNumLines(15)
-
-    local desc = AceGUI:Create("Label")
-    desc:SetText("Kick player and his alts")
-    desc:SetColor(1, 1, 0)
-    desc:SetFont("Fonts\\FRIZQT__.TTF", 18)
-    --desc:SetJustifyH("CENTER")
-    desc:SetFullWidth(true)
-    container:AddChild(desc)
 
     local descc = AceGUI:Create("Label")
     descc:SetText("WARNING: DO NOT SHOW OFFLINE PLAYERS IN THE GUILD!")
@@ -356,13 +341,6 @@ local function KickPlayers(container)
 end
 -- mass invite to raid tab
 local function MassInviteToGroup(container)
-    local desc = AceGUI:Create("Label")
-    desc:SetText("Mass invite guild members to raid")
-    desc:SetColor(1, 1, 0)
-    desc:SetFont("Fonts\\FRIZQT__.TTF", 18)
-    --desc:SetJustifyH("CENTER")
-    desc:SetFullWidth(true)
-    container:AddChild(desc)
     
     local editbox = AceGUI:Create("EditBox")
     editbox:SetLabel("Enter timer (in seconds):")
@@ -430,16 +408,60 @@ local function MassInviteToGroup(container)
             TIMER:CancelTimer(timerId)
         end)
     container:AddChild(btnStopTimer)
+
+    local head1 = AceGUI:Create("Heading")
+    head1:SetText("Raid Controll")
+    head1:SetFullWidth(true)
+    head1:SetHeight(30)
+    container:AddChild(head1)
+
+    local RDiff = AceGUI:Create("Dropdown")
+    RDiff:SetLabel("Raid Difficulty")
+    RDiff:SetMultiselect(false)
+    RDiff:SetCallback("OnValueChanged",function(widget,event,value) diff_to_set = value end)
+    local diffs = {"10N","10HC","25N","25HC"}
+    RDiff:SetList(diffs)
+    RDiff:SetWidth(330)
+    RDiff:SetFullWidth(true)
+    container:AddChild(RDiff)
+
+    local btnBeginTimer2 = AceGUI:Create("Button")
+    btnBeginTimer2:SetText("Convert to RAID")
+    btnBeginTimer2:SetWidth(330)
+    btnBeginTimer2:SetFullWidth(true)
+    btnBeginTimer2:SetCallback("OnClick", function()
+        if not IsInRaid() then
+            ConvertToRaid()
+        end
+
+        if diff_to_set == "10N" then
+            SetLegacyRaidDifficulty(3)
+        elseif diff_to_set == "10HC" then
+            SetLegacyRaidDifficulty(5)
+        elseif diff_to_set == "25N" then
+            SetLegacyRaidDifficulty(4)
+        elseif diff_to_set == "25HC" then
+            SetLegacyRaidDifficulty(6)
+        end
+        end)
+    container:AddChild(btnBeginTimer2)
+
+    local btnDisb = AceGUI:Create("Button")
+    btnDisb:SetText("Disband Group")
+    btnDisb:SetWidth(330)
+    btnDisb:SetFullWidth(true)
+    btnDisb:SetCallback("OnClick", function()
+            if IsInGroup() then
+                for i = 1, GetNumGroupMembers() do
+                    local unit = IsInRaid() and "raid" .. i or "party" .. i
+                    UninviteUnit(unit)
+                end
+            end
+        end)
+    container:AddChild(btnDisb)
 end
 -- guild info tab
 local function GuildInfo(container)
-    local desc = AceGUI:Create("Label")
-    desc:SetText("Guild Info")
-    desc:SetColor(1, 1, 0)
-    desc:SetFont("Fonts\\FRIZQT__.TTF", 18)
-    --desc:SetJustifyH("CENTER")
-    desc:SetFullWidth(true)
-    container:AddChild(desc)
     
     local head1 = AceGUI:Create("Heading")
     head1:SetText("Players")
@@ -502,13 +524,6 @@ local function GuildInfo(container)
 end
 -- guild recruit tab
 local function ReqruitMembers(container)
-    local desc = AceGUI:Create("Label")
-    desc:SetText("Guild recruit")
-    desc:SetColor(1, 1, 0)
-    desc:SetFont("Fonts\\FRIZQT__.TTF", 18)
-    --desc:SetJustifyH("CENTER")
-    desc:SetFullWidth(true)
-    container:AddChild(desc)
 
     local editbox = AceGUI:Create("EditBox")
     editbox:SetLabel("Channel NUMBER")
@@ -566,14 +581,6 @@ local function Settings(container)
     container:AddChild(desc)
 end
 local function Rooster(container)
-    local desc = AceGUI:Create("Label")
-    desc:SetText("Rooster")
-    desc:SetColor(1, 1, 0)
-    desc:SetFont("Fonts\\FRIZQT__.TTF", 18)
-    --desc:SetJustifyH("CENTER")
-    desc:SetFullWidth(true)
-    container:AddChild(desc)
-
     local head2 = AceGUI:Create("Heading")
     head2:SetText("Rooster")
     head2:SetFullWidth(true)
