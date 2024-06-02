@@ -1,4 +1,4 @@
----@diagnostic disable: undefined-field, duplicate-set-field, undefined-global, redundant-parameter, deprecated, inject-field
+---@diagnostic disable: undefined-field, duplicate-set-field, undefined-global, redundant-parameter, deprecated, inject-field, param-type-mismatch
 GManager = LibStub("AceAddon-3.0"):NewAddon("GManager", "AceConsole-3.0")
 local TIMER = LibStub("AceTimer-3.0")
 local AceGUI = LibStub("AceGUI-3.0")
@@ -17,6 +17,7 @@ local rankToPromote
 local publicNoteToAdd
 local officerNoteToAdd
 local diff_to_set
+local messageToSend
 local ranks = {"asd","dfg"}
 local guildName, guildRankName, guildRankIndex, realm = GetGuildInfo("player")
 GManager.db = {
@@ -151,14 +152,31 @@ function InvitePlayerToGroup(plrName)
     InviteUnit(plrName) 
 end
 function PMToPlayer(plrName)
+    
+    local popupFrame = AceGUI:Create("Frame")
+    popupFrame:SetTitle("PM to: ".. plrName)
+    popupFrame:SetWidth(500)
+    popupFrame:SetHeight(200)
+    popupFrame:SetLayout("Flow")
 
-    local PMFrame = AceGUI:Create("Frame")
-    PMFrame:SetHeight(200)
-    PMFrame:SetWidth(550)
-    PMFrame:SetTitle("PM to: " .. plrName)
-    PMFrame:SetLayout("Flow")
-    PMFrame:SetCallback("OnClose",function(widget3) AceGUI:Release(widget3) end)
-    --SendChatMessage(" ","WHISPER",nil,plrName);
+    local PMText = AceGUI:Create("EditBox")
+    PMText:SetLabel("Message")
+    PMText:SetWidth(450)
+    PMText:SetFullWidth(true)
+    PMText:SetCallback("OnEnterPressed", function(widget, event, text) messageToSend = text end)
+    popupFrame:AddChild(PMText)
+
+    -- Add a button to close the popup frame
+    local closeButton = AceGUI:Create("Button")
+    closeButton:SetText("Send")
+    closeButton:SetWidth(100)
+    closeButton:SetCallback("OnClick", function() 
+        SendChatMessage(messageToSend, "WHISPER", nil, plrName)
+        popupFrame:Release()
+    end)
+    popupFrame:AddChild(closeButton)
+    -- Show the popup frame
+    popupFrame:Show()
 end
 local function GetGuildRanks()
     local numRanks = GuildControlGetNumRanks()
