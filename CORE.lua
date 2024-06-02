@@ -3,6 +3,7 @@ GManager = LibStub("AceAddon-3.0"):NewAddon("GManager", "AceConsole-3.0")
 local TIMER = LibStub("AceTimer-3.0")
 local AceGUI = LibStub("AceGUI-3.0")
 
+
 local AceAddon = LibStub("AceAddon-3.0")
 local EVENTS = AceAddon:NewAddon("EVENTS", "AceEvent-3.0")
 local frameShown = false
@@ -155,9 +156,8 @@ function PMToPlayer(plrName)
     PMFrame:SetHeight(200)
     PMFrame:SetWidth(550)
     PMFrame:SetTitle("PM to: " .. plrName)
-    PMFrame:SetLayout("Fill")
+    PMFrame:SetLayout("Flow")
     PMFrame:SetCallback("OnClose",function(widget3) AceGUI:Release(widget3) end)
-    
     --SendChatMessage(" ","WHISPER",nil,plrName);
 end
 local function GetGuildRanks()
