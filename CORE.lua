@@ -150,7 +150,15 @@ function InvitePlayerToGroup(plrName)
     InviteUnit(plrName) 
 end
 function PMToPlayer(plrName)
-    SendChatMessage(" ","WHISPER",nil,plrName);
+
+    local PMFrame = AceGUI:Create("Frame")
+    PMFrame:SetHeight(200)
+    PMFrame:SetWidth(550)
+    PMFrame:SetTitle("PM to: " .. plrName)
+    PMFrame:SetLayout("Fill")
+    PMFrame:SetCallback("OnClose",function(widget3) AceGUI:Release(widget3) end)
+    
+    --SendChatMessage(" ","WHISPER",nil,plrName);
 end
 local function GetGuildRanks()
     local numRanks = GuildControlGetNumRanks()
