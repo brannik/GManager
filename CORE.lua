@@ -156,7 +156,7 @@ function PMToPlayer(plrName)
     local popupFrame = AceGUI:Create("Frame")
     popupFrame:SetTitle("PM to: ".. plrName)
     popupFrame:SetWidth(500)
-    popupFrame:SetHeight(200)
+    popupFrame:SetHeight(150)
     popupFrame:SetLayout("Flow")
 
     local PMText = AceGUI:Create("EditBox")
@@ -175,6 +175,8 @@ function PMToPlayer(plrName)
         popupFrame:Release()
     end)
     popupFrame:AddChild(closeButton)
+
+    popupFrame:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", 0, 500)
     -- Show the popup frame
     popupFrame:Show()
 end
