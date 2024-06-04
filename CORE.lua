@@ -20,6 +20,45 @@ local diff_to_set
 local messageToSend
 local ranks = {"asd","dfg"}
 local guildName, guildRankName, guildRankIndex, realm = GetGuildInfo("player")
+local function capitalize(str)
+    return str:gsub("(%a)([%w_']*)", function(first, rest) return first:upper()..rest:lower() end)
+end
+local function GuildNameToIndex(name)
+    name = string.lower(name)
+    for i = 1,GetNumGuildMembers(true) do
+        if string.lower((GetGuildRosterInfo(i))) == name then
+            return i
+        end
+    end
+end
+local RestrictedZones = {"The Ruby Sanctum","Icecrown Citadel"}
+
+local function CheckRestrictedZones(test)
+    for _, zone in ipairs(RestrictedZones) do
+        -- Check if the value of test matches any element in the table
+        if test == zone then
+            return true
+        end
+    end
+    return false
+end
+local function GetDKP(string)
+    local strings
+    local containsOnlyAlphabetic = string.match(string, "^[A-Za-z]+$")
+    if containsOnlyAlphabetic then
+        for i = 1, GetNumGuildMembers(true) do -- Passing true includes offline members
+            local name, _, _, _, _, _, officerNote, _, _, _, _, _, _, _, online = GetGuildRosterInfo(i)
+            if name == string then
+                --local netNumbers2 = string.match(officerNote, "Net:(%d+) Tot:")
+                strings = "Fix alt DKP"
+            end
+        end
+    else
+        local netNumbers = string.match(string, "Net:(%d+) Tot:")
+        strings = netNumbers .. " DKP"
+    end
+    return strings
+end
 GManager.db = {
     channelForSpam = 1,
     messageToSpam = "none",
@@ -37,6 +76,18 @@ local classCounts = {
     ["MAGE"] = 0,
     ["WARLOCK"] = 0,
     ["DRUID"] = 0
+}
+local classIcons = {
+    ["WARRIOR"] = "Interface\\Icons\\ClassIcon_Warrior",
+    ["PALADIN"] = "Interface\\Icons\\ClassIcon_Paladin",
+    ["HUNTER"] = "Interface\\Icons\\ClassIcon_Hunter",
+    ["ROGUE"] = "Interface\\Icons\\ClassIcon_Rogue",
+    ["PRIEST"] = "Interface\\Icons\\ClassIcon_Priest",
+    ["DEATHKNIGHT"] = "Interface\\Icons\\ClassIcon_DeathKnight",
+    ["SHAMAN"] = "Interface\\Icons\\ClassIcon_Shaman",
+    ["MAGE"] = "Interface\\Icons\\ClassIcon_Mage",
+    ["WARLOCK"] = "Interface\\Icons\\ClassIcon_Warlock",
+    ["DRUID"] = "Interface\\Icons\\ClassIcon_Druid",
 }
 local function CountClasses()
     classCounts = {
@@ -58,14 +109,6 @@ local function CountClasses()
 end
 local function firstToUpper(str)
     return (str:gsub("^%l", string.upper))
-end
-local function GuildNameToIndex(name)
-    name = string.lower(name)
-    for i = 1,GetNumGuildMembers(true) do
-        if string.lower((GetGuildRosterInfo(i))) == name then
-            return i
-        end
-    end
 end
 local function IsAlt(plrName)
     local PlayerIndex = GuildNameToIndex(plrName);
@@ -102,9 +145,6 @@ local function GetClassColor(class)
     else
         return "ffffffff"  -- Default to white if class color not found
     end
-end
-local function capitalize(str)
-    return str:gsub("(%a)([%w_']*)", function(first, rest) return first:upper()..rest:lower() end)
 end
 local function FindChannelNumber(channelName)
     local numChannels = GetNumDisplayChannels()
@@ -644,35 +684,79 @@ local function Rooster(container)
     for i = 1, numTotalMembers do
         local name, rank, _, _, class, _, _, _, online = GetGuildRosterInfo(i)
         if online then
+            local plrInfo = GetPlayerGuildRank(name)
             local simpleInnerGroup = AceGUI:Create("SimpleGroup")
             simpleInnerGroup:SetLayout("Flow")
             simpleInnerGroup:SetFullWidth(true)
             simpleInnerGroup:SetHeight(50)
-            -- create inner grp
-            local charName = AceGUI:Create("Label")
-            local plrInfo = GetPlayerGuildRank(name)
-            charName:SetWidth(300)
-            charName:SetText("[".. plrInfo[7] .. "] |c" .. GetClassColor(plrInfo[2]).. name .. "|r Note: " .. plrInfo[4] .. " ONote: " .. plrInfo[5] .. " Zone: " .. plrInfo[6])
-            charName:SetColor(1, 1, 0)
-            charName:SetFont("Fonts\\FRIZQT__.TTF", 12)
-            --charName:SetJustifyH("LEFT")
-            simpleInnerGroup:AddChild(charName)
+            
+            local classIconImage = AceGUI:Create("Icon")
+            --classIconImage:SetImage(ClassIconPath[cls])
+            local icn = classIcons[string.upper(plrInfo[2])]
+            --print("DEBUG: " .. string.upper(class) .. "\n" .. icn)
+            classIconImage:SetImage(icn)
+            classIconImage:SetImageSize(28,28)
+            classIconImage:SetLabel("[" .. plrInfo[7] .. "]|c" .. GetClassColor(plrInfo[2]).. name .. "|r")
+            simpleInnerGroup:AddChild(classIconImage)
 
-            local buttonKick = AceGUI:Create("Button")
-            buttonKick:SetText("Invite")
-            buttonKick:SetWidth(80)
-            buttonKick:SetCallback("OnClick", function()
+            local part1, part2 = string.match(plrInfo[4], "MS:%s*(.-)%s*OS:%s*(.-)$")
+
+            local MSIcon = AceGUI:Create("Icon")
+            MSIcon:SetImage("Interface\\Icons\\INV_Misc_QuestionMark")
+            MSIcon:SetImageSize(28,28)
+            MSIcon:SetLabel(part1)
+            MSIcon:SetWidth(40)
+            MSIcon:SetCallback("OnClick", function()
+                print("MS Change")
+            end)
+            simpleInnerGroup:AddChild(MSIcon)
+
+            local OSIcon = AceGUI:Create("Icon")
+            OSIcon:SetImage("Interface\\Icons\\INV_Misc_QuestionMark")
+            OSIcon:SetImageSize(28,28)
+            OSIcon:SetLabel(part2)
+            OSIcon:SetWidth(40)
+            OSIcon:SetCallback("OnClick", function()
+                print("OS Change")
+            end)
+            simpleInnerGroup:AddChild(OSIcon)
+
+            local BTNInv = AceGUI:Create("Icon")
+            BTNInv:SetImage("Interface\\Icons\\INV_Misc_GroupNeedMore")
+            BTNInv:SetWidth(50)
+            BTNInv:SetImageSize(40,40)
+            BTNInv:SetCallback("OnClick", function()
                 InvitePlayerToGroup(name)
             end)
-            simpleInnerGroup:AddChild(buttonKick)
+            simpleInnerGroup:AddChild(BTNInv)
 
-            local buttonPM = AceGUI:Create("Button")
-            buttonPM:SetText("PM")
-            buttonPM:SetWidth(80)
-            buttonPM:SetCallback("OnClick", function()
+            local BTNPm = AceGUI:Create("Icon")
+            BTNPm:SetImage("Interface\\ChatFrame\\UI-ChatWhisperIcon")
+            BTNPm:SetWidth(50)
+            BTNPm:SetImageSize(50,50)
+            BTNPm:SetCallback("OnClick", function()
                 PMToPlayer(name)
             end)
-            simpleInnerGroup:AddChild(buttonPM)
+            simpleInnerGroup:AddChild(BTNPm)
+
+            local LabDKP = AceGUI:Create("Label")
+            LabDKP:SetWidth(120)
+            LabDKP:SetText("|cffffa500 " .. GetDKP(plrInfo[5]) .. "|r")
+            LabDKP:SetFont("Fonts\\FRIZQT__.TTF", 15)
+            --charName:SetJustifyH("LEFT")
+            simpleInnerGroup:AddChild(LabDKP)
+
+            local LabZone = AceGUI:Create("Label")
+            LabZone:SetWidth(200)
+            if CheckRestrictedZones(plrInfo[6]) then
+                LabZone:SetText("|cffff0000 " .. plrInfo[6] .. "|r")
+            else
+                LabZone:SetText("|cff00ff00 " .. plrInfo[6] .. "|r")
+            end
+            
+            LabZone:SetFont("Fonts\\FRIZQT__.TTF", 12)
+            --charName:SetJustifyH("LEFT")
+            simpleInnerGroup:AddChild(LabZone)
 
             scroll:AddChild(simpleInnerGroup)
         end
@@ -708,7 +792,7 @@ local function showFrame()
     frameShown = true
     local frame = AceGUI:Create("Frame")
     frame:SetHeight(500)
-    frame:SetWidth(550)
+    frame:SetWidth(700)
     if guildName ~= nil then
         frame:SetTitle(guildName)
     else
